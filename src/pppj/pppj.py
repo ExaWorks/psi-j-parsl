@@ -76,6 +76,8 @@ class PsiJProvider(ExecutionProvider):
 
     def cancel(self, job_ids):
         logger.info(f"Calling cancel for job ids {job_ids}")
+        results = []
+
         for job_id in job_ids:
             job = self.resources[job_id]
             logger.info(f"Calling cancel for job id {job_id}")
@@ -86,15 +88,18 @@ class PsiJProvider(ExecutionProvider):
             job = self.resources[job_id]
             try:
                 logger.info(f"Waiting for CANCELED state for job id {job_id}")
-                job.wait(target_states=[JobState.CANCELED])
+                r = job.wait(target_states=[JobState.CANCELED])
+                # what are the possible outputs here and what I'm expecting?
+                assert r is not None, "job.wait should not report that a timeout was reached"
+                assert r.state == JobState.CANCELED, "job.wait should return a CANCELLED state"
+                assert r.final, "job.wait should return a final state"
                 logger.info(f"Got to CANCELED state for job id {job_id}")
                 result = True
             except UnreachableStateException:
                 logger.info(f"Got UnreachableStateException waiting for CANCELED state for job id {job_id}")
                 result = False
-            result.append(result)
+            results.append(result)
 
-        results = []
         logger.info("All cancels completed")
         return results
 
