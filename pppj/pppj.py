@@ -39,15 +39,19 @@ class PsiJProvider(ExecutionProvider):
         self, *,
         job_executor,  # j/psi executor that should do the work
         job_attributes = None, # TODO: is it safe to re-use job attributes between jobs?
+        job_resources = None, # TODO: likewise is it safe to re-use job resources?
         init_blocks: int,
         min_blocks: int,
         max_blocks: int,
         nodes_per_block: int,   # TODO see my notes on parsl bug that this isn't documented
-        launcher: Launcher,
+        launcher: Launcher, # parsl launcher
+        job_launcher: str = None, # psi j launcher
         parallelism: float
       ):
         self.job_executor = job_executor
         self.job_attributes = job_attributes
+        self.job_launcher = job_launcher
+        self.job_resources = job_resources
         self.nodes_per_block = nodes_per_block
         self.init_blocks = init_blocks
         self.min_blocks = min_blocks
@@ -66,7 +70,7 @@ class PsiJProvider(ExecutionProvider):
         assert tasks_per_node == 1  # this is basically a parsl unfeature now (c.f. ipp deprecation) but it could probbably be implemented as part of the jobspec?
         # TODO: use job name in jobspec somewhere
         split = shlex.split(command)
-        job = Job(JobSpec(executable=split[0], arguments=split[1:], attributes=self.job_attributes))
+        job = Job(JobSpec(executable=split[0], arguments=split[1:], attributes=self.job_attributes, launcher=self.job_launcher, resources=self.job_resources))
         self.job_executor.submit(job)
         # submit needs to return a suitable job ID (that will be aligned with `status` job_ids input)
         # so it needs to be in harmony with the status call.
