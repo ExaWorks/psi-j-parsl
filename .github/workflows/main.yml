@@ -22,13 +22,17 @@ jobs:
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v2
-
       - name: Set up Python
         uses: actions/setup-python@v1
         with:
           python-version: 3.9
+
+      - uses: actions/checkout@v2
+        with:
+          path: parsl-provider-psi-j
+
+      - name: Install Parsl provider for PSI/J
+        run: pip install ./parsl-provider-psi-j
 
       - name: Install psi/j main
         run: pip install git+https://github.com/ExaWorks/psi-j-python/
@@ -54,5 +58,5 @@ jobs:
       - name: Run a multi-line script
         run: |
           cd parsl
-          pytest parsl/tests/ --config parsl/tests/configs/local_threads.py -k 'not cleannet'
+          pytest parsl/tests/ --config parsl-provider-psi-j/parsl_config.py -k 'not cleannet'
 
