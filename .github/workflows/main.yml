@@ -30,12 +30,18 @@ jobs:
         with:
           python-version: 3.9
 
+      - name: Install psi/j main
+        run: pip install git+https://github.com/ExaWorks/psi-j-python/
 
-      - name: Install parsl
-        run: pip install parsl
+      # parsl comes from source because we want to run parsl pytests
+      - uses: actions/checkout@v2
+        with:
+          repository: https://github.com/parsl/parsl
+          ref: master
+          path: parsl
 
-      - name: Install psi/j
-        run: pip install psij
+      - name: Install parsl from checkout
+        run: pip install ./parsl
 
     # - name: Non-requirements based install
     #  run: |
