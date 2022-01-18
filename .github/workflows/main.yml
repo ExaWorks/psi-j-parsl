@@ -58,5 +58,5 @@ jobs:
       - name: Run a multi-line script
         run: |
           cd parsl
-          pytest parsl/tests/ --config parsl-provider-psi-j/parsl_config.py -k 'not cleannet'
+          pytest parsl/tests/ --config ../parsl-provider-psi-j/parsl_config.py -k 'not cleannet'
 
