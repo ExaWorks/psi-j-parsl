@@ -36,7 +36,7 @@ jobs:
       # parsl comes from source because we want to run parsl pytests
       - uses: actions/checkout@v2
         with:
-          repository: https://github.com/parsl/parsl
+          repository: parsl/parsl
           ref: master
           path: parsl
 
