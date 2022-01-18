@@ -54,5 +54,5 @@ jobs:
       - name: Run a multi-line script
         run: |
           cd parsl
-          pytest parsl/tests/ --config parsl/tests/configs/local_threads.py
+          pytest parsl/tests/ --config parsl/tests/configs/local_threads.py -k 'not cleannet'
 
