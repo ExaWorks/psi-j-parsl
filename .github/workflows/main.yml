@@ -34,8 +34,15 @@ jobs:
       - name: Install Parsl provider for PSI/J
         run: pip install ./parsl-provider-psi-j
 
-      - name: Install psi/j main
-        run: pip install git+https://github.com/ExaWorks/psi-j-python/
+      - uses: actions/checkout@v2
+        with:
+          repository: Exaworks/psi-j-python
+          ref: main
+          path: psi-j-python
+
+      - name: Install PSI/J from checkout
+        run: pip install ./psi-j-python -r ./psi-j-python/requirements-dev.txt
+
 
       # parsl comes from source because we want to run parsl pytests
       - uses: actions/checkout@v2
