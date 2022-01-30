@@ -10,14 +10,14 @@ print("importing pppj")
 
 import shlex
 
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 from parsl.providers.provider_base import ExecutionProvider, JobState
 from parsl.providers.provider_base import JobState as parsl_JobState
 from parsl.providers.provider_base import JobStatus as parsl_JobStatus
 from parsl.launchers.launchers import Launcher
 
-from psij import Job, JobSpec, UnreachableStateException
+from psij import Job, JobAttributes, JobExecutor, ResourceSpec, JobSpec, UnreachableStateException
 from psij import JobState as psij_JobState
 
 print("imported pppj")
@@ -36,15 +36,15 @@ class PsiJProvider(ExecutionProvider):
 
     def __init__(
         self, *,
-        job_executor,  # j/psi executor that should do the work
-        job_attributes = None, # TODO: is it safe to re-use job attributes between jobs?
-        job_resources = None, # TODO: likewise is it safe to re-use job resources?
+        job_executor: JobExecutor,  # j/psi executor that should do the work
+        job_attributes: Optional[JobAttributes] = None, # TODO: is it safe to re-use job attributes between jobs?
+        job_resources: Optional[ResourceSpec] = None, # TODO: likewise is it safe to re-use job resources?
         init_blocks: int,
         min_blocks: int,
         max_blocks: int,
         nodes_per_block: int,   # TODO see my notes on parsl bug that this isn't documented
         launcher: Launcher, # parsl launcher
-        job_launcher: str = None, # psi j launcher
+        job_launcher: Optional[str] = None, # psi j launcher
         parallelism: float
       ):
         self.job_executor = job_executor
@@ -65,7 +65,7 @@ class PsiJProvider(ExecutionProvider):
     status_polling_interval = 60
     label = "psij"  # TODO: could be based on the psij provider name?
 
-    def submit(self, command: str, tasks_per_node: int, job_name: str = "parsl.auto"):
+    def submit(self, command: str, tasks_per_node: int, job_name: str = "parsl.auto") -> str:
         logger.info(f"submitting, command is {command}")
         assert tasks_per_node == 1  # this is basically a parsl unfeature now (c.f. ipp deprecation) but it could probbably be implemented as part of the jobspec?
         # TODO: use job name in jobspec somewhere
@@ -80,7 +80,7 @@ class PsiJProvider(ExecutionProvider):
         return job.id
 
 
-    def cancel(self, job_ids):
+    def cancel(self, job_ids: List[str]) -> List[bool]:
         logger.info(f"Calling cancel for job ids {job_ids}")
         results = []
 
@@ -109,7 +109,7 @@ class PsiJProvider(ExecutionProvider):
         logger.info("All cancels completed")
         return results
 
-    def status(self, job_ids: List[Any]):
+    def status(self, job_ids: List[Any]) -> List[parsl_JobStatus]:
         logger.info("Polling status")
         statuses = []
         for key in job_ids:
