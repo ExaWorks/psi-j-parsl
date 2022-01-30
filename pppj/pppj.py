@@ -10,16 +10,15 @@ print("importing pppj")
 
 import shlex
 
-from typing import Any, List
+from typing import Any, Dict, List
 
 from parsl.providers.provider_base import ExecutionProvider, JobState
 from parsl.providers.provider_base import JobState as parsl_JobState
 from parsl.providers.provider_base import JobStatus as parsl_JobStatus
 from parsl.launchers.launchers import Launcher
 
-from psij import Job, JobSpec, JobState, UnreachableStateException
+from psij import Job, JobSpec, UnreachableStateException
 from psij import JobState as psij_JobState
- 
 
 print("imported pppj")
 
@@ -58,6 +57,7 @@ class PsiJProvider(ExecutionProvider):
         self.max_blocks = max_blocks
         self.parallelism = parallelism
 
+        self.resources: Dict[Any, Any]
         self.resources = {} # undocumented requirement from elsewhere in parsl: used to acquire job IDs from keys, but apparently the value is not inspected. so the value can be whatever the provider wants.
 
         super().__init__()
@@ -94,10 +94,10 @@ class PsiJProvider(ExecutionProvider):
             job = self.resources[job_id]
             try:
                 logger.info(f"Waiting for CANCELED state for job id {job_id}")
-                r = job.wait(target_states=[JobState.CANCELED])
+                r = job.wait(target_states=[psij_JobState.CANCELED])
                 # what are the possible outputs here and what I'm expecting?
                 assert r is not None, "job.wait should not report that a timeout was reached"
-                assert r.state == JobState.CANCELED, "job.wait should return a CANCELLED state"
+                assert r.state == psij_JobState.CANCELED, "job.wait should return a CANCELLED state"
                 assert r.final, "job.wait should return a final state"
                 logger.info(f"Got to CANCELED state for job id {job_id}")
                 result = True
