@@ -1,9 +1,9 @@
 from setuptools import setup
 
-setup(name='pppj',
+setup(name='psi-j-parsl',
       version='0.2021113001',
       description='parsl / psi-j integration',
-      url='http://github.com/benclifford/parsl-provider-psi-j',
+      url='http://github.com/ExaWorks/psi-j-parsl',
       author='exaworks',
       author_email='benc@hawaga.org.uk',
       license='unknown',
